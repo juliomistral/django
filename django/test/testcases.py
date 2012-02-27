@@ -239,7 +239,6 @@ class TransactionTestCase(unittest.TestCase):
         for db in databases:
             # Only if we have a test level fixture should we flush the DB's during setUp
             if hasattr(self, 'fixtures'):
-                log.info("Test level fixture found, flushing DB:  %s" % db)
                 call_command('flush', verbosity=0, interactive=False, database=db)
 
                 # We have to use this slightly awkward syntax due to the fact
