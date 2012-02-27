@@ -232,10 +232,12 @@ class TransactionTestCase(unittest.TestCase):
             databases = connections
         else:
             databases = [DEFAULT_DB_ALIAS]
-        for db in databases:
-            call_command('flush', verbosity=0, interactive=False, database=db)
 
+        for db in databases:
+            # Only if we have a test level fixture should we flush the DB's during setUp
             if hasattr(self, 'fixtures'):
+                call_command('flush', verbosity=0, interactive=False, database=db)
+
                 # We have to use this slightly awkward syntax due to the fact
                 # that we're using *args and **kwargs together.
                 call_command('loaddata', *self.fixtures, **{'verbosity': 0, 'database': db})
