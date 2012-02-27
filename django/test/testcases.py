@@ -20,6 +20,9 @@ try:
 except NameError:
     from django.utils.itercompat import all
 
+import logging
+log = logging.getLogger(__name__)
+
 normalize_long_ints = lambda s: re.sub(r'(?<![\w])(\d+)L(?![\w])', '\\1', s)
 normalize_decimals = lambda s: re.sub(r"Decimal\('(\d+(\.\d*)?)'\)", lambda m: "Decimal(\"%s\")" % m.groups()[0], s)
 
@@ -232,10 +235,13 @@ class TransactionTestCase(unittest.TestCase):
             databases = connections
         else:
             databases = [DEFAULT_DB_ALIAS]
-        for db in databases:
-            call_command('flush', verbosity=0, interactive=False, database=db)
 
+        for db in databases:
+            # Only if we have a test level fixture should we flush the DB's during setUp
             if hasattr(self, 'fixtures'):
+                log.info("Test level fixture found, flushing DB:  %s" % db)
+                call_command('flush', verbosity=0, interactive=False, database=db)
+
                 # We have to use this slightly awkward syntax due to the fact
                 # that we're using *args and **kwargs together.
                 call_command('loaddata', *self.fixtures, **{'verbosity': 0, 'database': db})
